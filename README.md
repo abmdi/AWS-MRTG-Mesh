@@ -8,7 +8,7 @@
 
 ---
 
-## 🏗️ Architecture Overview
+## Architecture Overview
 
 The project creates a full-mesh topology across multiple AWS regions using Transit Gateways and VPC attachments:
 
