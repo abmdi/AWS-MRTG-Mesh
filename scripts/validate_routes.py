@@ -79,5 +79,40 @@ def inspect_peering_attachments(ec2_client):
         print(f"[ERROR] Failed to fetch TGW Peering Attachments: {err}", file=sys.stderr)
         return []
 
+def audit_region_routing(region_name):
+    """Executes full audit pipeline for a given region."""
+    session = boto3.Session(region_name=region_name)
+    ec2_client = session.client("ec2")
+
+    route_tables = get_tgw_route_tables(ec2_client)
+    peering_status = inspect_peering_attachments(ec2_client)
+    
+    audit_data = {
+        "Region": region_name,
+        "PeeringAttachments": peering_status,
+        "RouteTables": []
+    }
+
+    for rt in route_tables:
+        rt_id = rt.get("TransitGatewayRouteTableId")
+        routes = inspect_tgw_routes(ec2_client, rt_id)
+        
+        parsed_routes = []
+        for r in routes:
+            parsed_routes.append({
+                "Destination": r.get("DestinationCidrBlock"),
+                "Type": r.get("Type"),
+                "State": r.get("State"),
+                "AttachmentId": r.get("TransitGatewayAttachments", [{}])[0].get("TransitGatewayAttachmentId", "N/A")
+            })
+
+        audit_data["RouteTables"].append({
+            "RouteTableId": rt_id,
+            "Routes": parsed_routes
+        })
+
+    return audit_data
+
+
 
 
