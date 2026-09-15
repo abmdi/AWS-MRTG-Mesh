@@ -113,6 +113,64 @@ def audit_region_routing(region_name):
 
     return audit_data
 
+def main():
+    args = parse_arguments()
 
+    try:
+        primary_audit = audit_region_routing(args.primary_region)
+        secondary_audit = audit_region_routing(args.secondary_region)
+    except (BotoCoreError, Exception) as error:
+        print(f"[CRITICAL] Execution interrupted: {error}", file=sys.stderr)
+        sys.exit(1)
+
+    combined_report = {
+        "PrimaryRegion": primary_audit,
+        "SecondaryRegion": secondary_audit
+    }
+
+    if args.json_output:
+        print(json.dumps(combined_report, indent=2))
+        return
+
+    # Console CLI Standard Output Formatting
+    print("=" * 80)
+    print(" AWS-MRTG-Mesh: Multi-Region Route Validation Report")
+    print("=" * 80)
+
+    for audit in [primary_audit, secondary_audit]:
+        print(f"\n[+] Region: {audit['Region']}")
+        
+        # Display Peering Attachment Status
+        print("\n  --> Peering Attachment Status:")
+        if audit["PeeringAttachments"]:
+            peering_table = [
+                [p["AttachmentId"], p["State"], p["RequesterRegion"], p["AccepterRegion"]]
+                for p in audit["PeeringAttachments"]
+            ]
+            print(tabulate(peering_table, headers=["Attachment ID", "State", "Requester", "Accepter"], tablefmt="square"))
+        else:
+            print("      No Peering Attachments found.")
+
+        # Display Route Tables Status
+        print("\n  --> Transit Gateway Route Tables:")
+        for rt in audit["RouteTables"]:
+            print(f"      Table ID: {rt['RouteTableId']}")
+            if rt["Routes"]:
+                routes_table = [
+                    [r["Destination"], r["Type"], r["State"], r["AttachmentId"]]
+                    for r in rt["Routes"]
+                ]
+                print(tabulate(routes_table, headers=["Destination", "Type", "State", "Attachment ID"], tablefmt="presto"))
+            else:
+                print("      No active or blackhole routes.")
+            print()
+
+    print("=" * 80)
+    print(" Audit Execution Finished Successfully.")
+    print("=" * 80)
+
+
+if __name__ == "__main__":
+    main()
 
 
