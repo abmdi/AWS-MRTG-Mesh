@@ -44,24 +44,3 @@ graph TD
     end
 
     TGW_A <==>|TGW Inter-Region Peering Attachment| TGW_B
-
-AWS-MRTG-Mesh/
-├── README.md
-├── terraform/
-│   ├── modules/
-│   │   ├── vpc/
-│   │   │   ├── main.tf
-│   │   │   ├── variables.tf
-│   │   │   └── outputs.tf
-│   │   └── tgw/
-│   │       ├── main.tf
-│   │       ├── variables.tf
-│   │       └── outputs.tf
-│   ├── main.tf
-│   ├── providers.tf
-│   ├── variables.tf
-│   ├── outputs.tf
-│   └── terraform.tfvars.example
-└── scripts/
-    ├── validate_routes.py
-    └── requirements.txt
