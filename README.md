@@ -13,7 +13,6 @@ A production-grade, highly available Infrastructure-as-Code (IaC) baseline imple
 
 The architecture interconnects multi-AZ VPC workloads across two separate AWS regions (`us-east-1` and `eu-west-1`) over the encrypted AWS regional backbone. Custom Transit Gateway Route Tables ensure isolated traffic domains between workload tiers and cross-region transit paths.
 
-```mermaid
 graph TD
     subgraph Region_Primary ["AWS Region: us-east-1 (Primary)"]
         subgraph VPC_A ["Primary Workload VPC (10.1.0.0/16)"]
