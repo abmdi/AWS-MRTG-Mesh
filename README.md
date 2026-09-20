@@ -1,36 +1,46 @@
-# AWS-MRTG-Mesh (Multi-Region Transit Gateway Mesh)
+# AWS-MRTG-Mesh: Multi-Region Transit Gateway Mesh Architecture
 
-[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](LICENSE)
-[![Terraform](https://img.shields.io/badge/IaC-Terraform-purple.svg)](https://www.terraform.io/)
-[![Python](https://img.shields.io/badge/Python-3.8%2B-brightgreen.svg)](https://www.python.org/)
+![AWS](https://img.shields.io/badge/AWS-232F3E?style=for-the-badge&logo=amazon-aws&logoColor=white)
+![Terraform](https://img.shields.io/badge/Terraform-7B42BC?style=for-the-badge&logo=terraform&logoColor=white)
+![Python](https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white)
+![License-MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)
 
-**AWS-MRTG-Mesh** is an Infrastructure as Code (IaC) project designed to automate the deployment and validation of a Multi-Region Transit Gateway (TGW) Mesh architecture on AWS. It provides scalable, cross-region VPC connectivity alongside automated route validation scripts.
+A production-grade, highly available Infrastructure-as-Code (IaC) baseline implementing an enterprise multi-region network mesh on AWS using **AWS Transit Gateway (TGW) Peering**, isolated routing domains, and dynamic route inspection tooling.
 
 ---
 
 ## Architecture Overview
 
-The project creates a full-mesh topology across multiple AWS regions using Transit Gateways and VPC attachments:
+The architecture interconnects multi-AZ VPC workloads across two separate AWS regions (`us-east-1` and `eu-west-1`) over the encrypted AWS regional backbone. Custom Transit Gateway Route Tables ensure isolated traffic domains between workload tiers and cross-region transit paths.
 
-* **Modular VPC Setup:** Deploys configurable VPCs across multiple regions with isolated subnet topologies.
-* **TGW Mesh Networking:** Connects AWS Transit Gateways via intra-region attachments and cross-region peering.
-* **Automated Validation:** Includes Python tooling to audit Transit Gateway route tables, ensuring active connectivity and detecting blackhole or missing routes.
+```mermaid
+graph TD
+    subgraph Region_Primary ["AWS Region: us-east-1 (Primary)"]
+        subgraph VPC_A ["Primary Workload VPC (10.1.0.0/16)"]
+            Subnet_A1["Private Subnet AZ1"]
+            Subnet_A2["Private Subnet AZ2"]
+            Subnet_TGW_A["TGW Dedicated Subnets"]
+        end
 
----
+        TGW_A["Primary Transit Gateway<br/>(ASN: 64512)"]
+        RT_Workload_A["Workload TGW Route Table"]
+        
+        Subnet_TGW_A -->|VPC Attachment| TGW_A
+        TGW_A --- RT_Workload_A
+    end
 
-## 📁 Repository Structure
+    subgraph Region_Secondary ["AWS Region: eu-west-1 (Secondary)"]
+        subgraph VPC_B ["Secondary Workload VPC (10.101.0.0/16)"]
+            Subnet_B1["Private Subnet AZ1"]
+            Subnet_B2["Private Subnet AZ2"]
+            Subnet_TGW_B["TGW Dedicated Subnets"]
+        end
 
-```text
-AWS-MRTG-Mesh/
-├── terraform/
-│   ├── modules/
-│   │   ├── vpc/          # Reusable VPC infrastructure module
-│   │   └── tgw/          # Reusable Transit Gateway module
-│   ├── main.tf           # Main entry point combining modules
-│   ├── providers.tf      # Multi-region AWS provider setup
-│   ├── variables.tf      # Global input variables
-│   ├── outputs.tf        # Core infrastructure outputs
-│   └── terraform.tfvars.example
-└── scripts/
-    ├── validate_routes.py # Route validation tool (boto3)
-    └── requirements.txt   # Python dependencies
+        TGW_B["Secondary Transit Gateway<br/>(ASN: 64513)"]
+        RT_Workload_B["Workload TGW Route Table"]
+
+        Subnet_TGW_B -->|VPC Attachment| TGW_B
+        TGW_B --- RT_Workload_B
+    end
+
+    TGW_A <==>|TGW Inter-Region Peering Attachment| TGW_B
