@@ -121,24 +121,4 @@ resource "aws_ec2_transit_gateway_route" "secondary_to_primary_route" {
   transit_gateway_route_table_id = module.tgw_secondary.workload_route_table_id
 }
 
-# -----------------------------------------------------------------------------
-# 5. VPC LOCAL ROUTE TABLE UPDATES
-# -----------------------------------------------------------------------------
 
-# Add route in Primary VPC Private Route Table towards Primary TGW
-resource "aws_route" "primary_vpc_to_tgw" {
-  provider = aws.us_east_1
-
-  route_table_id         = module.vpc_primary.private_route_table_id
-  destination_cidr_block = var.secondary_vpc_cidr
-  transit_gateway_id     = module.tgw_primary.tgw_id
-}
-
-# Add route in Secondary VPC Private Route Table towards Secondary TGW
-resource "aws_route" "secondary_vpc_to_tgw" {
-  provider = aws.eu_west_1
-
-  route_table_id         = module.vpc_secondary.private_route_table_id
-  destination_cidr_block = var.primary_vpc_cidr
-  transit_gateway_id     = module.tgw_secondary.tgw_id
-}
