@@ -158,19 +158,4 @@ The Python validation script verifies that:
 2. Route entries in each Transit Gateway correctly direct remote CIDR traffic over the peering attachment.
 3. No routes are marked with `blackhole` status due to deleted or misconfigured subnets/attachments.
 
----
 
-## Cleanup
-
-To avoid ongoing charges for provisioned cloud resources:
-
-```bash
-cd terraform/
-terraform destroy -auto-approve
-```
-
----
-
-## License
-
-Distributed under the MIT License. See `LICENSE` for details.
