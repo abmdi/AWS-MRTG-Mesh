@@ -1,19 +1,30 @@
-variable "vpc_cidr" {
-  description = "CIDR range for the VPC"
+variable "vpc_name" {
   type        = string
+  description = "Name of the Spoke or Hub VPC."
 }
 
-variable "environment" {
-  description = "Environment tag"
+variable "cidr_block" {
   type        = string
+  description = "CIDR block for the VPC."
 }
 
-variable "name_prefix" {
-  description = "Prefix for resource naming"
-  type        = string
-}
-
-variable "availability_zones" {
-  description = "List of Availability Zones"
+variable "azs" {
   type        = list(string)
+  description = "List of Availability Zones for subnets."
+}
+
+variable "public_subnet_cidrs" {
+  type        = list(string)
+  description = "CIDR blocks for public subnets."
+}
+
+variable "private_subnet_cidrs" {
+  type        = list(string)
+  description = "CIDR blocks for private subnets."
+}
+
+variable "tags" {
+  type        = map(string)
+  description = "Resource tags."
+  default     = {}
 }
