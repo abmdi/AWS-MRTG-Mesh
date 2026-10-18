@@ -1,25 +1,14 @@
-
 output "tgw_id" {
-  description = "The ID of the Transit Gateway"
-  value       = aws_ec2_transit_gateway.main.id
+  value       = aws_ec2_transit_gateway.tgw.id
+  description = "The ID of the Transit Gateway."
 }
 
 output "tgw_arn" {
-  description = "The ARN of the Transit Gateway"
-  value       = aws_ec2_transit_gateway.main.arn
+  value       = aws_ec2_transit_gateway.tgw.arn
+  description = "The ARN of the Transit Gateway."
 }
 
-output "vpc_attachment_id" {
-  description = "The ID of the TGW VPC Attachment"
-  value       = aws_ec2_transit_gateway_vpc_attachment.main.id
-}
-
-output "workload_route_table_id" {
-  description = "The ID of the Workload TGW Route Table"
-  value       = aws_ec2_transit_gateway_route_table.workload_rt.id
-}
-
-output "peering_route_table_id" {
-  description = "The ID of the Peering TGW Route Table"
-  value       = aws_ec2_transit_gateway_route_table.peering_rt.id
+output "attachment_ids" {
+  value       = { for k, v in aws_ec2_transit_gateway_vpc_attachment.attachments : k => v.id }
+  description = "Map of VPC attachment IDs."
 }
