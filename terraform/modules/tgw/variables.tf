@@ -1,25 +1,29 @@
-variable "name_prefix" {
-  description = "Prefix for TGW resource naming"
+variable "tgw_name" {
   type        = string
+  description = "Name tag for the Transit Gateway."
 }
 
-variable "amazon_side_asn" {
-  description = "BGP Autonomous System Number (ASN) for the Transit Gateway"
-  type        = number
-  default     = 64512
-}
-
-variable "vpc_id" {
-  description = "Target VPC ID for TGW Attachment"
+variable "description" {
   type        = string
+  description = "Description of the Transit Gateway."
+  default     = "Enterprise Multi-Region Transit Gateway"
 }
 
-variable "tgw_subnet_ids" {
-  description = "List of TGW dedicated subnet IDs within the VPC"
-  type        = list(string)
+variable "vpc_attachments" {
+  type = map(object({
+    vpc_id              = string
+    subnet_ids          = list(string)
+    dns_support         = optional(string, "enable")
+    ipv6_support        = optional(string, "disable")
+    transit_gateway_default_route_table_association = optional(bool, true)
+    transit_gateway_default_route_table_propagation = optional(bool, true)
+  }))
+  description = "Map of VPC configurations to attach to the Transit Gateway."
+  default     = {}
 }
 
-variable "remote_vpc_cidr" {
-  description = "Destination VPC CIDR block for static peering routing"
-  type        = string
+variable "tags" {
+  type        = map(string)
+  description = "Resource tags."
+  default     = {}
 }
